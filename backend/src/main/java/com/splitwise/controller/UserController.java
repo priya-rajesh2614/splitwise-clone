@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.splitwise.dto.UserDto;
+import com.splitwise.dto.CreateUserDto;
 import com.splitwise.entity.User;
 import com.splitwise.service.UserService;
 
@@ -31,7 +31,7 @@ public class UserController {
 	}
 	
 	@PostMapping
-	public ResponseEntity<?> createUser(@RequestBody UserDto userdto){
+	public ResponseEntity<?> createUser(@RequestBody CreateUserDto userdto){
 		 return userService.createdUser(userdto);
 	}
 

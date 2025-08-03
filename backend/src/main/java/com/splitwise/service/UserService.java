@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.splitwise.dto.UserDto;
+import com.splitwise.dto.CreateUserDto;
 import com.splitwise.entity.User;
 import com.splitwise.repository.UserRepo;
 
@@ -27,7 +27,7 @@ public class UserService {
 		return userRepo.findAll();
 	}
 
-	public ResponseEntity<?> createdUser(UserDto userdto) {
+	public ResponseEntity<?> createdUser(CreateUserDto userdto) {
 		 if (userRepo.existsByEmail(userdto.getEmail())) {
 	            return ResponseEntity
 	                    .status(HttpStatus.BAD_REQUEST)
