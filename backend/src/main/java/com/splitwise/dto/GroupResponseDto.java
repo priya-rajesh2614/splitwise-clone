@@ -2,13 +2,13 @@ package com.splitwise.dto;
 
 import java.time.LocalDateTime;
 
-public class GroupResponseDTO {
+public class GroupResponseDto {
 	private Long id;
 	private String name;
 	private String createdBy;
 	private LocalDateTime createdAt;
   
-	 public GroupResponseDTO(Long id, String name, String createdBy,LocalDateTime createdAt) {
+	 public GroupResponseDto(Long id, String name, String createdBy,LocalDateTime createdAt) {
 	        this.id = id;
 	        this.name = name;
 	        this.createdBy = createdBy;

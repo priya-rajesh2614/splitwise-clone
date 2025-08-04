@@ -10,10 +10,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import com.splitwise.dto.GetUserDTO;
+import com.splitwise.dto.GetUserDto;
 import com.splitwise.dto.GroupDto;
 import com.splitwise.dto.GroupMemberId;
-import com.splitwise.dto.GroupResponseDTO;
+import com.splitwise.dto.GroupResponseDto;
 import com.splitwise.entity.Group;
 import com.splitwise.entity.GroupMember;
 import com.splitwise.entity.User;
@@ -36,8 +36,13 @@ public class GroupService {
 
 	public ResponseEntity<?> createGroup(GroupDto groupdto) throws BadRequestException {
 
-		User user = userRepo.findById(groupdto.getCreatedBy())
-				.orElseThrow(() -> new BadRequestException("User not found with ID: " + groupdto.getCreatedBy()));
+		Optional<User> optionalUser = userRepo.findById(groupdto.getCreatedBy());
+
+		if (optionalUser.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("User not found");
+		}
+		
+		User user = optionalUser.get();
 
 		Group group = new Group();
 		group.setName(groupdto.getName());
@@ -45,21 +50,21 @@ public class GroupService {
 
 		Group savedGroup = groupRepo.save(group);
 
-		GroupResponseDTO response = new GroupResponseDTO(savedGroup.getId(), savedGroup.getName(),
+		GroupResponseDto response = new GroupResponseDto(savedGroup.getId(), savedGroup.getName(),
 				savedGroup.getCreatedBy().getName(), savedGroup.getCreatedAt());
 
 		return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
 	}
 
-	public List<GroupResponseDTO> getAllGroups() {
+	public List<GroupResponseDto> getAllGroups() {
 
 		List<Group> groupList = groupRepo.findAll();
 
-		List<GroupResponseDTO> groupResponseList = new ArrayList<>();
+		List<GroupResponseDto> groupResponseList = new ArrayList<>();
 
 		for (Group group : groupList) {
-			GroupResponseDTO response = new GroupResponseDTO(group.getId(), group.getName(),
+			GroupResponseDto response = new GroupResponseDto(group.getId(), group.getName(),
 					group.getCreatedBy().getName(), group.getCreatedAt());
 			groupResponseList.add(response);
 		}
@@ -110,10 +115,10 @@ public class GroupService {
 
 	    List<GroupMember> members = groupMemberRepo.findByGroup(optionalGroup.get());
 	    
-	    List<GetUserDTO> userDTOs = new ArrayList<>();
+	    List<GetUserDto> userDTOs = new ArrayList<>();
 	    for (GroupMember member : members) {
 	        User user = member.getUser();
-	        GetUserDTO dto = new GetUserDTO(user.getId(), user.getName(), user.getEmail());
+	        GetUserDto dto = new GetUserDto(user.getId(), user.getName(), user.getEmail());
 	        userDTOs.add(dto);
 	    }
 

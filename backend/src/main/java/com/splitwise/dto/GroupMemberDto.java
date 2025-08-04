@@ -1,12 +1,12 @@
 package com.splitwise.dto;
 
-public class GroupMemberDTO {
+public class GroupMemberDto {
     private Long userId;
 
-    public GroupMemberDTO() {
+    public GroupMemberDto() {
     }
 
-    public GroupMemberDTO(Long userId) {
+    public GroupMemberDto(Long userId) {
         this.userId = userId;
     }
 

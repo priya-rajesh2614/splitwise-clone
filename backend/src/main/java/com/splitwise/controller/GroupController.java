@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.splitwise.dto.GroupDto;
-import com.splitwise.dto.GroupMemberDTO;
-import com.splitwise.dto.GroupResponseDTO;
+import com.splitwise.dto.GroupMemberDto;
+import com.splitwise.dto.GroupResponseDto;
 import com.splitwise.service.GroupService;
 
 
@@ -32,12 +32,12 @@ public class GroupController {
 	}
 	
 	@GetMapping
-	public List<GroupResponseDTO> getAllGroups(){
+	public List<GroupResponseDto> getAllGroups(){
 		return groupService.getAllGroups();
 	}
 	
 	@PostMapping("/{groupId}/members")
-    public ResponseEntity<?> addMemberToGroup(@PathVariable Long groupId, @RequestBody GroupMemberDTO dto) throws BadRequestException {
+    public ResponseEntity<?> addMemberToGroup(@PathVariable Long groupId, @RequestBody GroupMemberDto dto) throws BadRequestException {
         return groupService.addMember(groupId, dto.getUserId());
     }
 	
