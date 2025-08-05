@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.splitwise.dto.GroupDto;
 import com.splitwise.dto.GroupMemberDto;
 import com.splitwise.dto.GroupResponseDto;
+import com.splitwise.service.ExpenseService;
 import com.splitwise.service.GroupService;
 
 
@@ -21,9 +22,11 @@ import com.splitwise.service.GroupService;
 @RequestMapping("/groups")
 public class GroupController {
 	private GroupService groupService;
+	private ExpenseService expenseService;
 
-	public GroupController(GroupService groupService) {
+	public GroupController(GroupService groupService, ExpenseService expenseService) {
 		this.groupService = groupService;
+		this.expenseService = expenseService;
 	}
 	
 	@PostMapping
@@ -46,6 +49,10 @@ public class GroupController {
 		return groupService.getMembers(groupId);
     }
 
+	@GetMapping("{groupId}/balances")
+	public ResponseEntity<?> getGroupBalances(@PathVariable Long groupId) {
+	   return expenseService.getGroupBalances(groupId);
+	}
 	
 
 }

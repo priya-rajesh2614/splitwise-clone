@@ -35,5 +35,5 @@ public class ExpenseController {
 	public ResponseEntity<?> getExpense(@PathVariable Long expenseId){
 		return expenseService.getExpense(expenseId);
 	}
-
+	
 }
