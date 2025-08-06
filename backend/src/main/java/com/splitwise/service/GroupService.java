@@ -57,9 +57,9 @@ public class GroupService {
 
 	}
 
-	public List<GroupResponseDto> getAllGroups() {
+	public List<GroupResponseDto> getAllGroups(Long userId) {
 
-		List<Group> groupList = groupRepo.findAll();
+		List<Group> groupList = groupRepo.findByCreatedBy_Id(userId);
 
 		List<GroupResponseDto> groupResponseList = new ArrayList<>();
 

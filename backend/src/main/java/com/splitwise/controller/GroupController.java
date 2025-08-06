@@ -34,9 +34,9 @@ public class GroupController {
 		return groupService.createGroup(groupdto);
 	}
 	
-	@GetMapping
-	public List<GroupResponseDto> getAllGroups(){
-		return groupService.getAllGroups();
+	@GetMapping("/user/{userId}")
+	public List<GroupResponseDto> getAllGroups(@PathVariable Long userId){
+		return groupService.getAllGroups(userId);
 	}
 	
 	@PostMapping("/{groupId}/members")

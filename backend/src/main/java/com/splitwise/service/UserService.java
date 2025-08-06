@@ -1,6 +1,7 @@
 package com.splitwise.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +9,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.splitwise.dto.CreateUserDto;
+import com.splitwise.dto.LoginRequestDto;
+import com.splitwise.dto.UserResponseDto;
 import com.splitwise.entity.User;
 import com.splitwise.repository.UserRepo;
 
@@ -42,6 +45,19 @@ public class UserService {
 	        User savedUser = userRepo.save(user);
 
 	        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+	}
+
+	
+
+	public UserResponseDto login(LoginRequestDto request) {
+		Optional<User> optionalUser = userRepo.findByEmail(request.getEmail());
+	    if (optionalUser.isPresent()) {
+	        User user = optionalUser.get();
+	        if (user.getEmail().equals(request.getEmail())) {
+	            return new UserResponseDto(user.getId(), user.getName(), user.getEmail());
+	        }
+	    }
+		return null;
 	}
 
 }
