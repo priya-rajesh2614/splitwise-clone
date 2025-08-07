@@ -24,7 +24,7 @@ const Header = () => {
         </Typography>
 
         <Box>
-          <Button  color='inherit' variant='outlined' sx={{mr: 2}} onClick={() => navigate('/')}>Groups</Button>
+          <Button  color='inherit' variant='outlined' sx={{mr: 2}} onClick={() => navigate('/groups')}>Groups</Button>
           <Button  color='inherit' variant='outlined' onClick={() => navigate('/create-group')}>Create Group</Button>
         </Box>
 
