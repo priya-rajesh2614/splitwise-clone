@@ -1,6 +1,6 @@
 import { Box, Button, Container, Paper, Stack, TextField, Typography } from "@mui/material";
 import { useState } from "react";
-import axios from '../api/axios'; // Axios instance with base URL
+import axios from '../api/axios'; 
 import { useNavigate } from "react-router-dom";
 
 export default function Register() {
