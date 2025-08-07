@@ -15,6 +15,10 @@ public class GroupResponseDto {
 	        this.createdAt=createdAt;
 	}
 
+	 public GroupResponseDto() {
+		// TODO Auto-generated constructor stub
+	}
+
 	 public Long getId() {
 		 return id;
 	 }

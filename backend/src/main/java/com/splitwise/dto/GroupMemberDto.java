@@ -1,20 +1,21 @@
 package com.splitwise.dto;
 
+import java.util.List;
+
 public class GroupMemberDto {
-    private Long userId;
+    private List<Long> userIds;
 
-    public GroupMemberDto() {
-    }
+	public List<Long> getUserIds() {
+		return userIds;
+	}
 
-    public GroupMemberDto(Long userId) {
-        this.userId = userId;
-    }
+	public void setUserIds(List<Long> userIds) {
+		this.userIds = userIds;
+	}
 
-    public Long getUserId() {
-        return userId;
-    }
+	public GroupMemberDto(List<Long> userIds) {
+		this.userIds = userIds;
+	}
 
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
+    
 }
