@@ -68,7 +68,7 @@ const GroupList = () => {
                   <Button
                     variant="outlined"
                     size="small"
-                    onClick={() => navigate(`/group/${group.id}`)}
+                    onClick={() => navigate(`/groups/${group.id}`)}
                   >
                     View
                   </Button>

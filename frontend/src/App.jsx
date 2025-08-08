@@ -7,6 +7,9 @@ import GroupList from './components/GroupList'
 import Header from './components/Header'
 import Register from './components/Register'
 import Login from './components/login'
+import ViewGroup from './components/ViewGroup'
+import AddExpense from './components/AddExpence'
+import AddMembers from './components/AddMembers'
 
 
 function App() {
@@ -23,8 +26,11 @@ function App() {
           <Route path='/' element={<Navigate to='/groups' />} />
           <Route path='/groups' element={<ProtectedRoute><GroupList /></ProtectedRoute>} />
           <Route path='/create-group' element={<ProtectedRoute><CreateGroup /></ProtectedRoute>} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/groups/:groupId" element={<ProtectedRoute><ViewGroup /></ProtectedRoute>} />
+          <Route path="/groups/:groupId/add-expense" element={<ProtectedRoute><AddExpense /></ProtectedRoute>} />
+          <Route path="/groups/:groupId/add-members" element={<ProtectedRoute><AddMembers /></ProtectedRoute>} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
         </Routes>
       </main>
     </UserProvider>
