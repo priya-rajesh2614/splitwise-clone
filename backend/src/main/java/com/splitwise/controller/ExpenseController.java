@@ -12,7 +12,7 @@ import com.splitwise.dto.ExpenseRequestDto;
 import com.splitwise.service.ExpenseService;
 
 @RestController
-@RequestMapping("/expences")
+@RequestMapping("/expenses")
 public class ExpenseController {
 	
 	private ExpenseService expenseService;
