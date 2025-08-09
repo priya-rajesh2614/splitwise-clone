@@ -82,11 +82,15 @@ public class ExpenseService {
 			}
 
 			User splitUser = optionalSplitUser.get();
+			
+			BigDecimal owes = userId.equals(user.getId()) 
+			        ? BigDecimal.ZERO 
+			        : splitAmount;
 
 			ExpenseSplit split = new ExpenseSplit();
 			split.setExpense(saveExpence);
 			split.setUser(splitUser);
-			split.setAmountOwed(splitAmount);
+			split.setAmountOwed(owes);
 
 			splitRepo.save(split);
 
@@ -199,6 +203,43 @@ public class ExpenseService {
 		}
 
 		return ResponseEntity.ok(result);
+	}
+
+	public List<ExpenseResponceDto> getExpensesByGroupId(Long groupId) {
+		List<Expense> expenses = expensesRepo.findByGroup_Id(groupId);
+
+		List<ExpenseResponceDto> responseList = new ArrayList<>();
+
+		for (Expense exp : expenses) {
+			ExpenseResponceDto response = new ExpenseResponceDto();
+			response.setExpenseId(exp.getId());
+			response.setDescription(exp.getDescription());
+			response.setAmount(exp.getAmount());
+			response.setGroupId(exp.getGroup().getId());
+			response.setPaidBy(exp.getPaidBy().getName());
+			response.setCreatedAt(exp.getCreatedAt());
+
+			List<ExpenseSplitDto> splitDetails = new ArrayList<>();
+
+			List<ExpenseSplit> expenseSplits = splitRepo.findByExpense(exp);
+
+			for (ExpenseSplit expenceSplit : expenseSplits) {
+
+				ExpenseSplitDto splitDTO = new ExpenseSplitDto();
+				splitDTO.setUserId(expenceSplit.getId());
+				splitDTO.setUserName(expenceSplit.getUser().getName());
+				splitDTO.setAmountOwed(expenceSplit.getAmountOwed());
+
+				splitDetails.add(splitDTO);
+			}
+
+			response.setSplitDetails(splitDetails);
+
+			responseList.add(response);
+		}
+		
+
+		return responseList;
 	}
 
 }

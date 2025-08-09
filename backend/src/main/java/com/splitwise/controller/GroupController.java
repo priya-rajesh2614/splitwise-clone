@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.splitwise.dto.ExpenseResponceDto;
 import com.splitwise.dto.GroupDto;
 import com.splitwise.dto.GroupMemberDto;
 import com.splitwise.dto.GroupResponseDto;
@@ -58,6 +59,11 @@ public class GroupController {
 	public ResponseEntity<?> getGroupById(@PathVariable Long groupId) {
 
 		return groupService.getGroupById(groupId);
+	}
+
+	@GetMapping("/{groupId}/expenses")
+	public List<ExpenseResponceDto> getExpensesByGroup(@PathVariable Long groupId) {
+		return expenseService.getExpensesByGroupId(groupId);
 	}
 
 }
