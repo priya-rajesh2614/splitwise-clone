@@ -1,6 +1,14 @@
-import { Box, Button, Container, Paper, Stack, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Container,
+  Paper,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useState } from "react";
-import axios from '../api/axios'; 
+import axios from "../api/axios";
 import { Link, useNavigate } from "react-router-dom";
 import { useUser } from "../UserContext";
 
@@ -17,35 +25,58 @@ export default function Login() {
 
     if (email && password) {
       try {
-        const response = await axios.post('/users/login', {
+        const response = await axios.post("/users/login", {
           email: email,
           password: password,
         });
-          navigate("/groups");
-          setUser(response.data);
+        navigate("/groups");
+        setUser(response.data);
       } catch (error) {
         console.error("Login Error:", error);
-        alert("Something went wrong during login.");
+        alert(error.response?.data || "Something went wrong during login.");
       }
-    } else {
-      alert("Please enter both email and password");
     }
   };
 
   return (
     <Box
       sx={{
-        justifyContent: "center",
         display: "flex",
+        justifyContent: "center",
         alignItems: "center",
         height: "100vh",
-        backgroundColor: "#f3f4f6",
+        background: "linear-gradient(135deg, #6a11cb 0%, #2575fc 100%)",
       }}
     >
-      <Container component={Paper} sx={{ padding: "40px", width: "400px" }}>
+      <Container
+        component={Paper}
+        sx={{
+          padding: "40px",
+          width: "400px",
+          borderRadius: "16px",
+          boxShadow: "0 8px 24px rgba(0,0,0,0.2)",
+          backgroundColor: "#fff",
+        }}
+      >
         <Stack spacing={3}>
-          <Typography variant="h5" align="center">
-            Login
+          <Typography
+            variant="h4"
+            align="center"
+            sx={{
+              fontWeight: "bold",
+              background: "linear-gradient(90deg, #6a11cb, #2575fc)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+            }}
+          >
+            Welcome Back
+          </Typography>
+
+          <Typography
+            align="center"
+            sx={{ color: "gray", fontSize: "14px", mb: 2 }}
+          >
+            Login to continue to Splitwise Clone
           </Typography>
 
           <TextField
@@ -53,9 +84,12 @@ export default function Login() {
             type="email"
             value={email}
             error={isFormSubmitted && !email}
-            helperText={isFormSubmitted && !email ? "Please enter your email" : ""}
+            helperText={
+              isFormSubmitted && !email ? "Please enter your email" : ""
+            }
             onChange={(e) => setEmail(e.target.value)}
             fullWidth
+            variant="outlined"
           />
 
           <TextField
@@ -63,23 +97,42 @@ export default function Login() {
             type="password"
             value={password}
             error={isFormSubmitted && !password}
-            helperText={isFormSubmitted && !password ? "Please enter your password" : ""}
+            helperText={
+              isFormSubmitted && !password ? "Please enter your password" : ""
+            }
             onChange={(e) => setPassword(e.target.value)}
             fullWidth
+            variant="outlined"
           />
 
           <Button
             variant="contained"
-            color="primary"
+            size="large"
+            sx={{
+              background: "linear-gradient(90deg, #6a11cb, #2575fc)",
+              fontWeight: "bold",
+              textTransform: "none",
+              borderRadius: "8px",
+              boxShadow: "0 4px 14px rgba(37, 117, 252, 0.4)",
+              "&:hover": {
+                background: "linear-gradient(90deg, #5a0eb5, #1d63d2)",
+              },
+            }}
             onClick={handleClick}
-            fullWidth
           >
             Login
           </Button>
 
-          <Typography align="center">
+          <Typography align="center" sx={{ fontSize: "14px" }}>
             Don’t have an account?{" "}
-            <Link to="/register" style={{ textDecoration: "none", color: "#1976d2" }}>
+            <Link
+              to="/register"
+              style={{
+                textDecoration: "none",
+                color: "#2575fc",
+                fontWeight: "bold",
+              }}
+            >
               Sign up
             </Link>
           </Typography>

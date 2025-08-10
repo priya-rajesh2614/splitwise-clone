@@ -50,8 +50,16 @@ export default function AddExpense() {
 
   return (
     <Container maxWidth="sm" sx={{ mt: 5 }}>
-      <Paper elevation={3} sx={{ p: 4 }}>
-        <Typography variant="h5" gutterBottom>Add Expense</Typography>
+      <Paper
+        elevation={3}
+        sx={{
+          p: 4,
+          borderRadius: 3,
+        }}
+      >
+        <Typography variant="h5" gutterBottom fontWeight="bold">
+          Add Expense
+        </Typography>
         <form onSubmit={handleSubmit}>
           <Stack spacing={2}>
             <TextField
@@ -59,6 +67,7 @@ export default function AddExpense() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               required
+              fullWidth
             />
             <TextField
               label="Amount"
@@ -66,6 +75,7 @@ export default function AddExpense() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               required
+              fullWidth
             />
             <FormControl fullWidth>
               <InputLabel>Paid By</InputLabel>
@@ -103,7 +113,22 @@ export default function AddExpense() {
               </Select>
             </FormControl>
             {error && <Typography color="error">{error}</Typography>}
-            <Button type="submit" variant="contained">Add Expense</Button>
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{
+                background: 'linear-gradient(90deg, #6a11cb 0%, #2575fc 100%)',
+                color: '#fff',
+                borderRadius: 2,
+                textTransform: 'none',
+                fontWeight: 'bold',
+                '&:hover': {
+                  background: 'linear-gradient(90deg, #5b0eb0 0%, #1f66e0 100%)',
+                }
+              }}
+            >
+              Add Expense
+            </Button>
           </Stack>
         </form>
       </Paper>

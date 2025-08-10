@@ -12,7 +12,9 @@ import {
   ListItem,
   ListItemText,
   Card,
-  CardContent
+  CardContent,
+  Tabs,
+  Tab
 } from "@mui/material";
 import AddMembers from "./AddMembers";
 
@@ -23,6 +25,7 @@ export default function ViewGroup() {
   const [balances, setBalances] = useState([]);
   const [expenses, setExpenses] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
+  const [tabValue, setTabValue] = useState(0);
 
   const navigate = useNavigate();
 
@@ -69,122 +72,211 @@ export default function ViewGroup() {
     }
   };
 
-  if (!group) return <Typography>Loading group...</Typography>;
+  if (!group) return <Typography sx={{ p: 3 }}>Loading group...</Typography>;
 
   return (
     <>
       <Box sx={{ p: 3 }}>
-        <Typography variant="h4" gutterBottom>
-          {group.name}
-        </Typography>
-        <Typography variant="subtitle1">
-          Created by: {group.createdBy}
-        </Typography>
-        <Typography variant="subtitle2">
-          Created at: {new Date(group.createdAt).toLocaleDateString()}
-        </Typography>
-
-        <Stack direction="row" spacing={2} sx={{ mt: 3 }}>
-          <Button variant="contained" onClick={() => setOpenDialog(true)}>
-            Add Members
-          </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={() => navigate(`/groups/${groupId}/add-expense`)}
-          >
-            Add Expense
-          </Button>
-        </Stack>
-
-        <Divider sx={{ my: 3 }} />
-
-        <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
-          Members
-        </Typography>
-
-        <Paper sx={{ p: 2, mb: 3 }}>
-          <List>
-            {members.map((member) => (
-              <ListItem key={member.id}>
-                <ListItemText primary={member.name} />
-              </ListItem>
-            ))}
-          </List>
-        </Paper>
-
-        <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
-          Balances
-        </Typography>
-        <Paper sx={{ p: 2, mb: 3 }}>
-
-          <List>
-            {balances.map((bal, i) => (
-              <ListItem key={i}>
-                <ListItemText
-                  primary={`${bal.userName} ${bal.balance >= 0 ? "is owed" : "owes"
-                    } ₹${Math.abs(bal.balance)}`}
-                />
-              </ListItem>
-            ))}
-          </List>
-        </Paper>
-
-        <Typography variant="h5" sx={{ mb: 2, fontWeight: "bold" }}>
-          Expenses
-        </Typography>
-        {expenses.length === 0 && (
-          <Typography variant="body1" color="textSecondary">
-            No expenses yet.
-          </Typography>
-        )}
-
-        {expenses.map((expense) => (
-          <Card
-            key={expense.expenseId}
+        <Box
+          sx={{
+            p: 4,
+            borderRadius: "16px",
+            textAlign: "center"
+          }}
+        >
+          <Typography
+            variant="h4"
+            fontWeight="bold"
+            gutterBottom
             sx={{
-              mb: 3,
-              boxShadow: 1,
-              padding: 1
+              background: "linear-gradient(90deg, #0072ff, #00c6ff)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              letterSpacing: "1px"
             }}
           >
-            <CardContent>
-              <Typography variant="h6" sx={{ fontWeight: "bold", mb: 1 }}>
-                {expense.description}
-              </Typography>
+            {group.name}
+          </Typography>
 
-              <Typography variant="h6" color="primary">
-                ₹{expense.amount}
-              </Typography>
+          <Typography
+            variant="subtitle1"
+            gutterBottom
+            sx={{ color: "#555", fontWeight: 500 }}
+          >
+            Created by:{" "}
+            <Box component="span" sx={{ fontWeight: "bold", color: "#333" }}>
+              {group.createdBy}
+            </Box>
+          </Typography>
 
-              <Typography variant="body1" sx={{ mb: 2 }}>
-                Paid by <strong>{expense.paidBy}</strong> on{" "}
-                {new Date(expense.createdAt).toLocaleDateString()}
-              </Typography>
+          <Typography
+            variant="subtitle2"
+            gutterBottom
+            sx={{ color: "#777", fontStyle: "italic" }}
+          >
+            Created at: {new Date(group.createdAt).toLocaleDateString()}
+          </Typography>
 
-              <Divider sx={{ mb: 2 }} />
+          <Stack
+            direction="row"
+            spacing={2}
+            justifyContent="center"
+            sx={{ mt: 3 }}
+          >
+            <Button
+              variant="contained"
+              onClick={() => setOpenDialog(true)}
+              sx={{
+                background: "linear-gradient(90deg, #00c6ff, #0072ff)",
+                color: "#fff",
+                px: 3,
+                py: 1,
+                borderRadius: "12px",
+                fontWeight: "bold",
+                textTransform: "none",
+                boxShadow: "0 4px 12px rgba(0, 114, 255, 0.3)",
+                "&:hover": {
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 6px 16px rgba(0, 114, 255, 0.4)"
+                },
+                transition: "all 0.3s ease"
+              }}
+            >
+              Add Members
+            </Button>
 
-              <Typography
-                variant="subtitle1"
-                sx={{ fontWeight: "bold", mb: 1 }}
-              >
-                Split Details:
-              </Typography>
+            <Button
+              variant="contained"
+              onClick={() => navigate(`/groups/${groupId}/add-expense`)}
+              sx={{
+                background: "linear-gradient(90deg, #ff7eb3, #ff758c)",
+                color: "#fff",
+                px: 3,
+                py: 1,
+                borderRadius: "12px",
+                fontWeight: "bold",
+                textTransform: "none",
+                boxShadow: "0 4px 12px rgba(255, 118, 140, 0.3)",
+                "&:hover": {
+                  transform: "translateY(-2px)",
+                  boxShadow: "0 6px 16px rgba(255, 118, 140, 0.4)"
+                },
+                transition: "all 0.3s ease"
+              }}
+            >
+              Add Expense
+            </Button>
+          </Stack>
+        </Box>
+
+
+        <Paper sx={{ mt: 4 }}>
+          <Tabs
+            value={tabValue}
+            onChange={(e, newValue) => setTabValue(newValue)}
+            indicatorColor="primary"
+            textColor="primary"
+            variant="fullWidth"
+          >
+            <Tab label="Members" />
+            <Tab label="Balances" />
+            <Tab label="Expenses" />
+          </Tabs>
+
+          <Box sx={{ p: 3 }}>
+            {tabValue === 0 && (
               <List>
-                {expense.splitDetails.map((split) => (
-                  <ListItem key={split.userId} sx={{ paddingY: 0.5 }}>
-                    <ListItemText
-                      primary={split.userName}
-                      secondary={`Owes ₹${split.amountOwed}`}
-                    />
+                {members.map((member) => (
+                  <ListItem key={member.id}>
+                    <ListItemText primary={member.name} />
                   </ListItem>
                 ))}
               </List>
-            </CardContent>
-          </Card>
-        ))}
-      </Box>
+            )}
 
+            {tabValue === 1 && (
+              <>
+                {expenses.length === 0 ? (
+                  <Typography variant="body1" color="textSecondary">
+                    No balances yet.
+                  </Typography>
+                ) : (
+                  <List>
+                    {balances.map((bal, i) => (
+                      <ListItem key={i}>
+                        <ListItemText
+                          primary={`${bal.userName} ${bal.balance >= 0 ? "is owed" : "owes"
+                            } ₹${Math.abs(bal.balance)}`}
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
+              </>
+
+            )}
+
+            {tabValue === 2 && (
+              <>
+                {expenses.length === 0 ? (
+                  <Typography variant="body1" color="textSecondary">
+                    No expenses yet.
+                  </Typography>
+                ) : (
+                  expenses.map((expense) => (
+                    <Card
+                      key={expense.expenseId}
+                      sx={{
+                        mb: 3,
+                        boxShadow: 2,
+                        borderRadius: 2,
+                        background:
+                          "linear-gradient(145deg, #f5f7fa, #e4e7eb)"
+                      }}
+                    >
+                      <CardContent>
+                        <Typography
+                          variant="h6"
+                          sx={{ fontWeight: "bold", mb: 1 }}
+                        >
+                          {expense.description}
+                        </Typography>
+                        <Typography variant="h6" color="primary">
+                          ₹{expense.amount}
+                        </Typography>
+                        <Typography variant="body2" sx={{ mb: 2 }}>
+                          Paid by <strong>{expense.paidBy}</strong> on{" "}
+                          {new Date(expense.createdAt).toLocaleDateString()}
+                        </Typography>
+                        <Divider sx={{ mb: 2 }} />
+                        <Typography
+                          variant="subtitle1"
+                          sx={{ fontWeight: "bold", mb: 1 }}
+                        >
+                          Split Details:
+                        </Typography>
+                        <List>
+                          {expense.splitDetails.map((split) => (
+                            <ListItem
+                              key={split.userId}
+                              sx={{ paddingY: 0.5 }}
+                            >
+                              <ListItemText
+                                primary={split.userName}
+                                secondary={`Owes ₹${split.amountOwed}`}
+                              />
+                            </ListItem>
+                          ))}
+                        </List>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </>
+            )}
+          </Box>
+        </Paper>
+      </Box>
 
       <AddMembers
         open={openDialog}
