@@ -17,6 +17,8 @@ import {
   Tab
 } from "@mui/material";
 import AddMembers from "./AddMembers";
+import PaymentDialog from "./PaymentDialog"
+import { useUser } from "../UserContext";
 
 export default function ViewGroup() {
   const { groupId } = useParams();
@@ -26,6 +28,18 @@ export default function ViewGroup() {
   const [expenses, setExpenses] = useState([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [tabValue, setTabValue] = useState(0);
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [paymentInfo, setPaymentInfo] = useState({ toUserId: null, amount: 0, userName: '' });
+
+  const { user } = useUser()
+
+  const currentUserId = user?.id
+
+  const handleOpenPayment = (toUserId, amount, userName) => {
+    setPaymentInfo({ toUserId, amount, userName });
+    setPaymentDialogOpen(true);
+  };
+
 
   const navigate = useNavigate();
 
@@ -71,6 +85,7 @@ export default function ViewGroup() {
       console.error("Failed to fetch expenses", err);
     }
   };
+
 
   if (!group) return <Typography sx={{ p: 3 }}>Loading group...</Typography>;
 
@@ -196,7 +211,7 @@ export default function ViewGroup() {
 
             {tabValue === 1 && (
               <>
-                {expenses.length === 0 ? (
+                {balances.length === 0 ? (
                   <Typography variant="body1" color="textSecondary">
                     No balances yet.
                   </Typography>
@@ -205,9 +220,30 @@ export default function ViewGroup() {
                     {balances.map((bal, i) => (
                       <ListItem key={i}>
                         <ListItemText
-                          primary={`${bal.userName} ${bal.balance >= 0 ? "is owed" : "owes"
-                            } ₹${Math.abs(bal.balance)}`}
+                          primary={`${bal.userName} ${bal.balance >= 0 ? "is owed" : "owes"} ₹${Math.abs(bal.balance)}`}
                         />
+                        {currentUserId == bal.userId && (
+                          <Button
+                            sx={{
+                              background: "linear-gradient(90deg, #00c6ff, #0072ff)",
+                              color: "#fff",
+                              px: 3,
+                              py: 1,
+                              borderRadius: "12px",
+                              fontWeight: "bold",
+                              textTransform: "none",
+                              boxShadow: "0 4px 12px rgba(0, 114, 255, 0.3)",
+                              "&:hover": {
+                                transform: "translateY(-2px)",
+                                boxShadow: "0 6px 16px rgba(0, 114, 255, 0.4)"
+                              },
+                              transition: "all 0.3s ease"
+                            }}
+                            onClick={() => handleOpenPayment(bal.toUserId, bal.balance, bal.toUserName)}
+                          >
+                            Settle Up
+                          </Button>
+                        )}
                       </ListItem>
                     ))}
                   </List>
@@ -285,6 +321,18 @@ export default function ViewGroup() {
         currentMembers={members.map((m) => m.id)}
         onSuccess={fetchMembers}
       />
+
+      <PaymentDialog
+        open={paymentDialogOpen}
+        onClose={() => setPaymentDialogOpen(false)}
+        groupId={groupId}
+        fromUserId={currentUserId}
+        toUserId={paymentInfo.toUserId}
+        amount={paymentInfo.amount}
+        onSuccess={fetchBalances}
+        toUserName={paymentInfo.userName}
+      />
+
     </>
   );
 }
