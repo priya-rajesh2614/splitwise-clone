@@ -59,7 +59,7 @@ public class GroupService {
 
 	public List<GroupResponseDto> getAllGroups(Long userId) {
 
-		List<Group> groupList = groupRepo.findByCreatedBy_Id(userId);
+		List<Group> groupList = groupRepo.findGroupsByUserId(userId);
 
 		List<GroupResponseDto> groupResponseList = new ArrayList<>();
 

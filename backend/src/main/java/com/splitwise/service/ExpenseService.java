@@ -17,13 +17,16 @@ import com.splitwise.dto.ExpenseRequestDto;
 import com.splitwise.dto.ExpenseResponceDto;
 import com.splitwise.dto.ExpenseSplitDto;
 import com.splitwise.dto.GroupMemberBalanceDto;
+import com.splitwise.dto.UserBalanceDto;
 import com.splitwise.entity.Expense;
 import com.splitwise.entity.ExpenseSplit;
 import com.splitwise.entity.Group;
+import com.splitwise.entity.Payment;
 import com.splitwise.entity.User;
 import com.splitwise.repository.ExpenseRepo;
 import com.splitwise.repository.ExpenseSplitRepo;
 import com.splitwise.repository.GroupRepo;
+import com.splitwise.repository.PaymentRepo;
 import com.splitwise.repository.UserRepo;
 
 @Service
@@ -36,13 +39,16 @@ public class ExpenseService {
 	private UserRepo userRepo;
 
 	private GroupRepo groupRepo;
+	
+	private PaymentRepo paymentRepo;
 
 	public ExpenseService(ExpenseRepo expencesRepo, ExpenseSplitRepo splitRepo, UserRepo userRepo,
-			GroupRepo groupRepo) {
+			GroupRepo groupRepo, PaymentRepo paymentRepo) {
 		this.expensesRepo = expencesRepo;
 		this.splitRepo = splitRepo;
 		this.userRepo = userRepo;
 		this.groupRepo = groupRepo;
+		this.paymentRepo = paymentRepo;
 	}
 
 	public ResponseEntity<?> createExpence(ExpenseRequestDto expenceRequestDto) {
@@ -152,58 +158,106 @@ public class ExpenseService {
 		return ResponseEntity.ok(response);
 
 	}
-
+	
 	public ResponseEntity<?> getGroupBalances(Long groupId) {
 
-		Optional<Group> optionalGroup = groupRepo.findById(groupId);
+	    Optional<Group> optionalGroup = groupRepo.findById(groupId);
+	    if (optionalGroup.isEmpty()) {
+	        return ResponseEntity.badRequest().body("Group not found with Id = " + groupId);
+	    }
 
-		if (optionalGroup.isEmpty()) {
-			return ResponseEntity.badRequest().body("Group not found with Id = " + groupId);
-		}
+	    List<Expense> expenses = expensesRepo.findByGroup_Id(groupId);
 
-		List<Expense> expenses = expensesRepo.findByGroup_Id(groupId);
+	    Map<Long, BigDecimal> paidAmountMap = new HashMap<>();
+	    Map<Long, BigDecimal> owedAmountMap = new HashMap<>();
+	    Map<Long, String> userIdNameMap = new HashMap<>();
 
-		Map<Long, BigDecimal> paidAmountMap = new HashMap<>();
-		Map<Long, BigDecimal> owedAmountMap = new HashMap<>();
-		Map<Long, String> userIdNameMap = new HashMap<>();
+	    for (Expense expense : expenses) {
+	        Long paidById = expense.getPaidBy().getId();
+	        BigDecimal amount = expense.getAmount();
+	        paidAmountMap.put(paidById, paidAmountMap.getOrDefault(paidById, BigDecimal.ZERO).add(amount));
+	        userIdNameMap.put(paidById, expense.getPaidBy().getName());
 
-		for (Expense expense : expenses) {
-			Long paidById = expense.getPaidBy().getId();
-			BigDecimal amount = expense.getAmount();
-			paidAmountMap.put(paidById, paidAmountMap.getOrDefault(paidById, BigDecimal.ZERO).add(amount));
-			userIdNameMap.put(paidById, expense.getPaidBy().getName());
+	        List<ExpenseSplit> splits = splitRepo.findByExpense(expense);
+	        int totalSplitUsers = splits.size();
 
-			List<ExpenseSplit> splits = splitRepo.findByExpense(expense);
-			int totalSplitUsers = splits.size();
+	        if (totalSplitUsers == 0) continue;
 
-			if (totalSplitUsers == 0) {
-				continue;
-			}
+	        BigDecimal perUserShare = amount.divide(BigDecimal.valueOf(totalSplitUsers), 2, RoundingMode.HALF_UP);
 
-			BigDecimal perUserShare = amount.divide(BigDecimal.valueOf(totalSplitUsers), 2, RoundingMode.HALF_UP);
+	        for (ExpenseSplit split : splits) {
+	            Long userId = split.getUser().getId();
+	            owedAmountMap.put(userId, owedAmountMap.getOrDefault(userId, BigDecimal.ZERO).add(perUserShare));
+	            userIdNameMap.put(userId, split.getUser().getName());
+	        }
+	    }
 
-			for (ExpenseSplit split : splits) {
-				Long userId = split.getUser().getId();
-				owedAmountMap.put(userId, owedAmountMap.getOrDefault(userId, BigDecimal.ZERO).add(perUserShare));
-				userIdNameMap.put(userId, split.getUser().getName());
-			}
-		}
+	    Map<Long, BigDecimal> balances = new HashMap<>();
+	    Set<Long> allUserIds = new HashSet<>();
+	    allUserIds.addAll(paidAmountMap.keySet());
+	    allUserIds.addAll(owedAmountMap.keySet());
 
-		Set<Long> allUserIds = new HashSet<>();
-		allUserIds.addAll(paidAmountMap.keySet());
-		allUserIds.addAll(owedAmountMap.keySet());
+	    for (Long userId : allUserIds) {
+	        BigDecimal paid = paidAmountMap.getOrDefault(userId, BigDecimal.ZERO);
+	        BigDecimal owed = owedAmountMap.getOrDefault(userId, BigDecimal.ZERO);
+	        balances.put(userId, paid.subtract(owed));
+	    }
 
-		List<GroupMemberBalanceDto> result = new ArrayList<>();
+	    List<Payment> paymentsList = paymentRepo.findByGroupId(groupId);
+	    for (Payment payment : paymentsList) {
+	        Long fromUserId = payment.getFromUserId();
+	        Long toUserId = payment.getToUserId();
+	        BigDecimal amount = payment.getAmount();
 
-		for (Long userId : allUserIds) {
-			BigDecimal paid = paidAmountMap.getOrDefault(userId, BigDecimal.ZERO);
-			BigDecimal owed = owedAmountMap.getOrDefault(userId, BigDecimal.ZERO);
-			BigDecimal balance = paid.subtract(owed);
-			result.add(new GroupMemberBalanceDto(userId, userIdNameMap.get(userId), balance));
-		}
+	        balances.put(fromUserId, balances.getOrDefault(fromUserId, BigDecimal.ZERO).add(amount));
 
-		return ResponseEntity.ok(result);
+	        balances.put(toUserId, balances.getOrDefault(toUserId, BigDecimal.ZERO).subtract(amount));
+	    }
+
+
+	    List<UserBalanceDto> creditors = new ArrayList<>();
+	    List<UserBalanceDto> debtors = new ArrayList<>();
+
+	    for (Map.Entry<Long, BigDecimal> entry : balances.entrySet()) {
+	        Long userId = entry.getKey();
+	        BigDecimal balance = entry.getValue();
+
+	        if (balance.compareTo(BigDecimal.ZERO) > 0) {
+	            creditors.add(new UserBalanceDto(userId, userIdNameMap.get(userId), balance));
+	        } else if (balance.compareTo(BigDecimal.ZERO) < 0) {
+	            debtors.add(new UserBalanceDto(userId, userIdNameMap.get(userId), balance.abs()));
+	        }
+	    }
+
+	    List<GroupMemberBalanceDto> payments = new ArrayList<>();
+	    int i = 0, j = 0;
+
+	    while (i < debtors.size() && j < creditors.size()) {
+	        UserBalanceDto debtor = debtors.get(i);
+	        UserBalanceDto creditor = creditors.get(j);
+
+	        BigDecimal minAmount = debtor.getAmount().min(creditor.getAmount());
+
+	        if (!debtor.getUserId().equals(creditor.getUserId())) {
+	            payments.add(new GroupMemberBalanceDto(
+	                debtor.getUserId(),
+	                debtor.getName(),
+	                minAmount,
+	                creditor.getUserId(),
+	                creditor.getName()
+	            ));
+	        }
+
+	        debtor.setAmount(debtor.getAmount().subtract(minAmount));
+	        creditor.setAmount(creditor.getAmount().subtract(minAmount));
+
+	        if (debtor.getAmount().compareTo(BigDecimal.ZERO) == 0) i++;
+	        if (creditor.getAmount().compareTo(BigDecimal.ZERO) == 0) j++;
+	    }
+
+	    return ResponseEntity.ok(payments);
 	}
+
 
 	public List<ExpenseResponceDto> getExpensesByGroupId(Long groupId) {
 		List<Expense> expenses = expensesRepo.findByGroup_Id(groupId);

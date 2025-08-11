@@ -7,11 +7,15 @@ public class GroupMemberBalanceDto {
 	private Long userId;
 	private String userName;
 	private BigDecimal balance;
+	private Long toUserId;
+	private String toUserName;
 
-	public GroupMemberBalanceDto(Long userId, String userName, BigDecimal balance) {
+	public GroupMemberBalanceDto(Long userId, String userName, BigDecimal balance, Long toUserId, String toUserName) {
 		this.userId = userId;
 		this.userName = userName;
 		this.balance = balance;
+		this.toUserId = toUserId;
+		this.toUserName = toUserName;
 	}
 
 	public Long getUserId() {
@@ -38,4 +42,21 @@ public class GroupMemberBalanceDto {
 		this.balance = balance;
 	}
 
+	public Long getToUserId() {
+		return toUserId;
+	}
+
+	public void setToUserId(Long toUserId) {
+		this.toUserId = toUserId;
+	}
+
+	public String getToUserName() {
+		return toUserName;
+	}
+
+	public void setToUserName(String toUserName) {
+		this.toUserName = toUserName;
+	}
+
+	
 }
